@@ -23,6 +23,13 @@ jobs:
         run: |
           rsync -a --delete --exclude='.git/' --exclude='.github/' --exclude='CNAME' --exclude='README.md' --exclude='_src/' _src/ ./
           rm -rf _src
+      - name: Point canonical, social and sitemap URLs at this domain
+        run: |
+          # The source repo is self-canonical on satyamsaxena1.github.io; this copy is its own site on blinkedit.me.
+          # Only SEO lines are rewritten, so functional links (e.g. Sileo/Zebra install URLs) are untouched.
+          for f in $(find . -name '*.html' -not -path './.git/*') sitemap.xml robots.txt; do
+            sed -i '/rel="canonical"\|og:url\|og:image\|<loc>\|^Sitemap:\|"url":/s#https://satyamsaxena1\.github\.io/#https://blinkedit.me/#g' "$f"
+          done
       - name: Commit and push if anything changed
         run: |
           git config user.name  "github-actions[bot]"
